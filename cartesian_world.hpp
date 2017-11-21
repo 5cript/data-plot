@@ -12,13 +12,14 @@ namespace DataPlot
     {
     public:
         using value_type = double;
+        static constexpr auto axisWidth = 8;
 
         CartesianWorld(Cairo::DrawContext* ctx, int width, int height);
 
         /**
          *  Changes the borders of the coordinate system.
          */
-        void changeView(double yMin, double yMax, double xMin, double xMax);
+        void changeView(double xMin, double xMax, double yMin, double yMax);
 
         /**
          *  @param set A set of values to render.
@@ -30,9 +31,18 @@ namespace DataPlot
          */
         void renderFunction(Function <value_type> const& function, Color color);
 
+        /**
+         *  Render axes.
+         *  @param dashStep the amount of steps to put dashes.
+         */
+        void renderLinearAxes(Color color, int dashStep = 10);
+
     private:
-        value_type fixX(value_type value) const;
-        value_type fixY(value_type value) const;
+        /**
+         *  Transforms a view value to an image coordinate.
+         */
+        value_type toWorldX(value_type value) const;
+        value_type toWorldY(value_type value) const;
 
     private:
         Cairo::DrawContext* ctx_;

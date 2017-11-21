@@ -35,5 +35,3 @@
 *.depend
 *.layout
 *build_log.html
-
-main.cpp
