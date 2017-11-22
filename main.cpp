@@ -8,13 +8,16 @@ int main()
 {
     using namespace DataPlot;
 
-    Cairo::Surface surface{800, 600};
+    int Width = 800;
+    int Height = 600;
+
+    Cairo::Surface surface{Width, Height};
     Cairo::DrawContext ctx{&surface};
 
     ctx.fill(Cairo::Colors::White);
 
-    CartesianWorld world{&ctx, 800, 600};
-    world.changeView(-200, 1600, 0, 1200);
+    CartesianWorld world{&ctx, Width, Height, Cairo::Colors::White};
+    world.changeView(-10, 2000, 3000, 6000);
 
     DataSet<double> points;
     DataSet<double> points2;
@@ -25,23 +28,34 @@ int main()
 
     std::uniform_real_distribution<double> dst{0., 600.};
 
-    auto averaged = 400.;
-    for (int i = 0; i != 500; ++i)
-        averaged = (dst(gen) + averaged) / 2;
-
-    for (int i = 0; i != 1600; ++i)
+    const double abtastRate = 0.02;
+    for (int i = 0; i != world.xMax()*abtastRate; ++i)
     {
-        averaged = (1 * dst(gen) + 9 * averaged) / 10;
-        auto sin = 300. + 100. * std::sin(3.14159265359 * i/180.);
-        points.insert(static_cast <double> (i), averaged + sin - 300.);
+        auto sin = (world.yMax() / 2.) * std::sin(static_cast <double>(i)/abtastRate);
 
-        points2.insert(i, sin);
+        points.insert(static_cast <double>(i)/abtastRate, sin);
     }
 
-    world.renderSet(points, Cairo::Colors::Magenta);
-    world.renderSet(points2, Cairo::Colors::Black);
 
-    world.renderLinearAxes(Cairo::Colors::Black);
+    PointOptions point;
+    point.style = PointDrawStyle::Cross;
+    PointOptions point2;
+    point2.style = PointDrawStyle::Dot;
+    point2.color1 = Cairo::Colors::Red;
+    point2.color2 = Cairo::Colors::Red;
+
+    world.renderFunction([&](double x){return points.max();}, {}, Cairo::Colors::Red);
+    world.renderFunction([&](double x){return points.min();}, {}, Cairo::Colors::Red);
+
+    //world.renderPath(points, Cairo::Colors::Magenta);
+    world.renderScatterPlot(points, point);
+    world.renderFunction([](double x){return 5.*std::sin(x);}, {false, 1000}, Cairo::Colors::Blue);
+    //world.renderPath(points2, Cairo::Colors::Black);
+
+    AxisOptions xOptions, yOptions;
+    xOptions.dashCount = (-world.xMin() + world.xMax()) / 100.;
+    yOptions.dashCount = (-world.yMin() + world.yMax()) / 100.;
+    world.renderLinearAxes(xOptions, yOptions);
 
     surface.saveToFile("data.png");
 

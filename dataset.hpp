@@ -64,7 +64,7 @@ namespace DataPlot
          */
         void insert(std::pair <T, T> const& point)
         {
-            data_.push_back(point);
+            insert(point.first, point.second);
         }
 
         /**
@@ -75,6 +75,18 @@ namespace DataPlot
          */
         void insert(T x, T y)
         {
+            if (data_.empty())
+            {
+                min_ = y;
+                max_ = y;
+            }
+            else
+            {
+                if (y > max_)
+                    max_ = y;
+                if (y < min_)
+                    min_ = y;
+            }
             data_.emplace_back(x, y);
         }
 
@@ -95,7 +107,18 @@ namespace DataPlot
             return std::end(data_);
         }
 
+        constexpr T max() const
+        {
+            return max_;
+        }
+        constexpr T min() const
+        {
+            return min_;
+        }
+
     private:
         std::vector <std::pair <T, T> > data_;
+        T max_;
+        T min_;
     };
 }
