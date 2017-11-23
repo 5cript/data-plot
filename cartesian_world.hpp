@@ -7,7 +7,7 @@
 #include "point_options.hpp"
 #include "function_render_options.hpp"
 
-#include "cairo-wrap/cairo_wrap.hpp"
+#include <cairo-wrap/cairo_wrap.hpp>
 
 namespace DataPlot
 {
