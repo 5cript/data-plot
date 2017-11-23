@@ -116,6 +116,11 @@ namespace DataPlot
             return min_;
         }
 
+        std::size_t size() const
+        {
+            return data_.size();
+        }
+
     private:
         std::vector <std::pair <T, T> > data_;
         T max_;
