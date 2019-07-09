@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <memory>
+#include <sstream>
 
 namespace DataPlot
 {
@@ -180,6 +181,73 @@ namespace DataPlot
             auto y = toWorldY(yMin_ + static_cast <double> (i) * static_cast <double>(-yMin_ + yMax_) / static_cast <double> (yOptions.dashCount));
             Cairo::Line dash{ctx_, origin.first - axisWidth / 2, y, origin.first + axisWidth / 2, y};
             dash.draw(yOptions.dashColor);
+        }
+
+        auto toString = [](auto value, int precision)
+        {
+            std::stringstream sstr;
+            sstr.precision(precision);
+            sstr << std::fixed << value;
+            return sstr.str();
+        };
+
+        // write max to axis (x)
+        if (xOptions.fontSize > 0 && xOptions.valueWriting != AxisValueWriteStrategy::None)
+        {
+            auto yPosition = origin.second - xOptions.fontSize - 8;
+            if (origin.second < static_cast <int> (xOptions.fontSize * 1.5))
+                yPosition = origin.second + 8;
+
+            double fontWidth;
+            {
+                Cairo::Surface surface{width_, height_};
+                Cairo::DrawContext dummy{&surface};
+                auto bounds = Cairo::Text{
+                    &dummy,
+                    0,
+                    0,
+                    toString(xMax_, xOptions.axisNumberPrecision),
+                    Cairo::Font{"Arial", static_cast <double> (xOptions.fontSize)}
+                }.calculateBounds(xOptions.fontColor);
+                fontWidth = bounds.getWidth();
+            }
+
+            Cairo::Text text{
+                ctx_,
+                toWorldX(xMax_) - fontWidth,
+                yPosition,
+                toString(xMax_, xOptions.axisNumberPrecision),
+                Cairo::Font{"Arial", static_cast <double> (xOptions.fontSize)}
+            };
+            text.draw(xOptions.fontColor);
+        }
+
+        // write max to axis (y)
+        if (yOptions.fontSize > 0 && xOptions.valueWriting != AxisValueWriteStrategy::None)
+        {
+            auto xPosition = origin.first + 8;
+            if (width_ - origin.first < 100)
+            {
+                Cairo::Surface surface{width_, height_};
+                Cairo::DrawContext dummy{&surface};
+                auto bounds = Cairo::Text{
+                    &dummy,
+                    0,
+                    0,
+                    toString(yMax_, yOptions.axisNumberPrecision),
+                    Cairo::Font{"Arial", static_cast <double> (yOptions.fontSize)}
+                }.calculateBounds(yOptions.fontColor);
+                xPosition = origin.first - bounds.getWidth() - 8;
+            }
+
+            Cairo::Text text{
+                ctx_,
+                xPosition,
+                1,
+                toString(yMax_, yOptions.axisNumberPrecision),
+                Cairo::Font{"Arial", static_cast <double> (yOptions.fontSize)}
+            };
+            text.draw(yOptions.fontColor);
         }
     }
 //---------------------------------------------------------------------------------------------------------------------

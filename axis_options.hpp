@@ -22,6 +22,7 @@ namespace DataPlot
         int dashCount = 20;
         Color fontColor = Cairo::Colors::Black;
         int fontSize = 10;
+        int axisNumberPrecision = 0;
         AxisValueWriteStrategy valueWriting = AxisValueWriteStrategy::Bounds;
     };
 }
