@@ -78,6 +78,14 @@ namespace DataPlot
 //---------------------------------------------------------------------------------------------------------------------
     void CartesianWorld::renderLinearAxes(AxisOptions const& xOptions, AxisOptions const& yOptions)
     {
+        auto toString = [](auto value, int precision)
+        {
+            std::stringstream sstr;
+            sstr.precision(precision);
+            sstr << std::fixed << value;
+            return sstr.str();
+        };
+
         std::pair <value_type, value_type> origin = {
             toWorldX(0),
             toWorldY(0)
@@ -138,6 +146,23 @@ namespace DataPlot
             cut1.draw(yOptions.cutColor);
             cut2.draw(yOptions.cutColor);
             cut3.draw(background_);
+
+            // write into cut
+            if (yOptions.fontSize > 0 && xOptions.valueWriting != AxisValueWriteStrategy::None)
+            {
+                auto yPosition = origin.second - xOptions.fontSize - 8;
+                if (origin.second < static_cast <int> (xOptions.fontSize * 1.5))
+                    yPosition = origin.second + 8;
+
+                Cairo::Text text{
+                    ctx_,
+                    origin.first + yOptions.axisCutDistance,
+                    yPosition,
+                    toString(yMin_, xOptions.axisNumberPrecision),
+                    Cairo::Font{"Arial", static_cast <double> (xOptions.fontSize)}
+                };
+                text.draw(xOptions.fontColor);
+            }
         }
 
         if (xMin_ > 0)
@@ -182,14 +207,6 @@ namespace DataPlot
             Cairo::Line dash{ctx_, origin.first - axisWidth / 2, y, origin.first + axisWidth / 2, y};
             dash.draw(yOptions.dashColor);
         }
-
-        auto toString = [](auto value, int precision)
-        {
-            std::stringstream sstr;
-            sstr.precision(precision);
-            sstr << std::fixed << value;
-            return sstr.str();
-        };
 
         // write max to axis (x)
         if (xOptions.fontSize > 0 && xOptions.valueWriting != AxisValueWriteStrategy::None)
