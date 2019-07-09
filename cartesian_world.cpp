@@ -92,12 +92,12 @@ namespace DataPlot
         };
 
         // x-Axis is out of world (bottom)
-        if (origin.second > height_ - xOptions.axisWidth)
-            origin.second = height_ - xOptions.axisWidth;
+        if (origin.second > height_/* - xOptions.axisWidth*/)
+            origin.second = height_/* - xOptions.axisWidth*/;
 
         // x-Axis is out of world (top)
         if (origin.second < 0)
-            origin.second = 0 + xOptions.axisWidth;
+            origin.second = 0/* + xOptions.axisWidth*/;
 
         // y-Axis is out of world (left)
         if (origin.first < 0)
